@@ -8,12 +8,15 @@
 
 /* Begin PBXBuildFile section */
 		1357AE667698F9ABDB2DD42E /* Cores in Resources */ = {isa = PBXBuildFile; fileRef = F93D93D62EBC6801B1E13BBB /* Cores */; };
+		2BCDE4954CCA4E5ABFD23818 /* LibRyujinx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E60A8D6880A4118F4DFE6F25 /* LibRyujinx.dylib */; };
 		2FC1C04BE931D3D05FC8081F /* EmulatorCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EF59C7B66EB49F0682A927C /* EmulatorCore.swift */; };
 		60EE42C57C9E2F57B9B7A5CA /* ROMManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD27D79B9EF70C67AA7FCD53 /* ROMManager.swift */; };
 		6614530BFCD7D9E37C3DD8DB /* flycast_libretro_ios.core in Resources */ = {isa = PBXBuildFile; fileRef = 62E6904CFABBB3A12CA68890 /* flycast_libretro_ios.core */; };
 		6BE06255272D01C8C52B29C1 /* EmulatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A58710B675B0A9888BBBE820 /* EmulatorView.swift */; };
 		A28277470883547D650E6D71 /* AetherXApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E0C589E05CDA2760229B9A /* AetherXApp.swift */; };
 		A533FC3462F2F1A0DA83AFDC /* ConsoleLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FEC3FA794F7421ED5CFE270 /* ConsoleLogger.swift */; };
+		C739048FCCF4986BC0426304 /* SwitchEmulatorCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C88BBB8C047B3487275AB2D /* SwitchEmulatorCore.swift */; };
+		E57475040DBBA5A401EB8F6B /* melonx_bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = DFCDFAEE38081882D01EA626 /* melonx_bridge.m */; };
 		E5A55E6D3F0A7C08516EEF72 /* Glassmorphism.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA2A6012CFC08D1ABE102CC /* Glassmorphism.swift */; };
 		F475E316A0E8B375252457C9 /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30059DF9535785D5939F69E /* ShareSheet.swift */; };
 		F6E21FCA8C63FF43638736D4 /* libretro_bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = E6DC297718B5F174C3D526DE /* libretro_bridge.m */; };
@@ -22,19 +25,25 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0A8FF70C8AB966762F646932 /* libarmeilleure-jitsupport.dylib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "compiled.mach-o.dylib"; name = "libarmeilleure-jitsupport.dylib"; path = "libarmeilleure-jitsupport.dylib"; sourceTree = "<group>"; };
 		0EF59C7B66EB49F0682A927C /* EmulatorCore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EmulatorCore.swift; sourceTree = "<group>"; };
 		0FEC3FA794F7421ED5CFE270 /* ConsoleLogger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConsoleLogger.swift; sourceTree = "<group>"; };
 		13E0C1B77B36A4370E6BE115 /* libretro_bridge.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = libretro_bridge.h; sourceTree = "<group>"; };
 		1EA2A6012CFC08D1ABE102CC /* Glassmorphism.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Glassmorphism.swift; sourceTree = "<group>"; };
 		62E6904CFABBB3A12CA68890 /* flycast_libretro_ios.core */ = {isa = PBXFileReference; includeInIndex = 1; name = flycast_libretro_ios.core; path = Cores/flycast_libretro_ios.core; sourceTree = "<group>"; };
+		6C88BBB8C047B3487275AB2D /* SwitchEmulatorCore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SwitchEmulatorCore.swift; path = SwitchEmulatorCore.swift; sourceTree = "<group>"; };
 		777EA85EC2BA5866D07C04C5 /* AetherX-Bridging-Header.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "AetherX-Bridging-Header.h"; sourceTree = "<group>"; };
+		77C9327DAB92923C6E07C17A /* melonx_bridge.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = melonx_bridge.h; path = melonx_bridge.h; sourceTree = "<group>"; };
 		85E430DE8B0BDD2E4AF84315 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8645498FE91C6E374D6170FA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		9C41D540EAAF22CEF6C7F9BE /* AetherX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AetherX.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A58710B675B0A9888BBBE820 /* EmulatorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EmulatorView.swift; sourceTree = "<group>"; };
 		AD27D79B9EF70C67AA7FCD53 /* ROMManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ROMManager.swift; sourceTree = "<group>"; };
 		C0E0C589E05CDA2760229B9A /* AetherXApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AetherXApp.swift; sourceTree = "<group>"; };
+		DFCDFAEE38081882D01EA626 /* melonx_bridge.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = melonx_bridge.m; path = melonx_bridge.m; sourceTree = "<group>"; };
 		E5653753F599FF37B214CFEB /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		E60A8D6880A4118F4DFE6F25 /* LibRyujinx.dylib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "compiled.mach-o.dylib"; name = LibRyujinx.dylib; path = LibRyujinx.dylib; sourceTree = "<group>"; };
+		E6DA6E51D6303A3DBE96BBA1 /* libryujinx.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = libryujinx.h; path = libryujinx.h; sourceTree = "<group>"; };
 		E6DC297718B5F174C3D526DE /* libretro_bridge.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = libretro_bridge.m; sourceTree = "<group>"; };
 		F30059DF9535785D5939F69E /* ShareSheet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
 		F93D93D62EBC6801B1E13BBB /* Cores */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; name = Cores; path = ../Cores; sourceTree = "<group>"; };
@@ -46,6 +55,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F6E99E22C23F20A0FC239512 /* Foundation.framework in Frameworks */,
+				2BCDE4954CCA4E5ABFD23818 /* LibRyujinx.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -76,6 +86,20 @@
 			name = iOS;
 			sourceTree = "<group>";
 		};
+		4286BFAE848045B50EDCA621 /* MeloNX */ = {
+			isa = PBXGroup;
+			children = (
+				E6DA6E51D6303A3DBE96BBA1 /* libryujinx.h */,
+				77C9327DAB92923C6E07C17A /* melonx_bridge.h */,
+				DFCDFAEE38081882D01EA626 /* melonx_bridge.m */,
+				6C88BBB8C047B3487275AB2D /* SwitchEmulatorCore.swift */,
+				E60A8D6880A4118F4DFE6F25 /* LibRyujinx.dylib */,
+				0A8FF70C8AB966762F646932 /* libarmeilleure-jitsupport.dylib */,
+			);
+			name = MeloNX;
+			path = MeloNX;
+			sourceTree = "<group>";
+		};
 		47DCFB9BD6373B8645FAF6C5 /* AetherX */ = {
 			isa = PBXGroup;
 			children = (
@@ -91,6 +115,7 @@
 				0EF59C7B66EB49F0682A927C /* EmulatorCore.swift */,
 				0FEC3FA794F7421ED5CFE270 /* ConsoleLogger.swift */,
 				F30059DF9535785D5939F69E /* ShareSheet.swift */,
+				4286BFAE848045B50EDCA621 /* MeloNX */,
 			);
 			path = AetherX;
 			sourceTree = "<group>";
@@ -223,6 +248,8 @@
 				2FC1C04BE931D3D05FC8081F /* EmulatorCore.swift in Sources */,
 				A533FC3462F2F1A0DA83AFDC /* ConsoleLogger.swift in Sources */,
 				F475E316A0E8B375252457C9 /* ShareSheet.swift in Sources */,
+				E57475040DBBA5A401EB8F6B /* melonx_bridge.m in Sources */,
+				C739048FCCF4986BC0426304 /* SwitchEmulatorCore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

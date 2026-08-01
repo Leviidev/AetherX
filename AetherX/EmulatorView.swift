@@ -153,42 +153,173 @@ struct EmulatorView: View {
 struct SwitchStubView: View {
     let game: GameROM
     @Environment(\.dismiss) var dismiss
-    
+    @StateObject private var core = SwitchEmulatorCore.shared
+
     var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            
-            VStack(spacing: 20) {
-                Image(systemName: "gamecontroller.fill")
-                    .font(.system(size: 60))
-                    .foregroundColor(.red)
-                
-                Text("Nintendo Switch Engine Integration Pending")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                
-                Text("AetherX is awaiting the Sudachi backend integration to play: \n\(game.name)")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
+        GeometryReader { geo in
+            ZStack {
+                Color.black.ignoresSafeArea()
+
+                if core.isRunning {
+                    VStack(spacing: 0) {
+                        // Game surface – MeloNX renders here via CAMetalLayer
+                        ZStack {
+                            Color.black
+                                .frame(width: geo.size.width, height: geo.size.height * 0.55)
+                                .gesture(
+                                    DragGesture(minimumDistance: 0)
+                                        .onChanged { v in core.sendTouch(at: v.location) }
+                                        .onEnded { _ in core.releaseTouch() }
+                                )
+                            Text("🕹 Switch surface active")
+                                .foregroundColor(.gray.opacity(0.3))
+                                .font(.caption)
+                        }
+                        // Controller overlay
+                        SwitchControllerView(core: core)
+                            .frame(width: geo.size.width, height: geo.size.height * 0.45)
+                    }
+
+                } else if let err = core.errorMessage {
+                    VStack(spacing: 16) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.system(size: 50))
+                            .foregroundColor(.orange)
+                        Text("Launch Failed")
+                            .font(.title2.bold())
+                            .foregroundColor(.white)
+                        Text(err)
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 30)
+                        Button("Dismiss") { dismiss() }
+                            .foregroundColor(.red)
+                    }
+
+                } else {
+                    // Loading state
+                    VStack(spacing: 24) {
+                        ZStack {
+                            Circle()
+                                .stroke(Color.white.opacity(0.1), lineWidth: 4)
+                                .frame(width: 80, height: 80)
+                            Circle()
+                                .trim(from: 0, to: 0.7)
+                                .stroke(
+                                    LinearGradient(colors: [.red, .orange], startPoint: .topLeading, endPoint: .bottomTrailing),
+                                    style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                                )
+                                .frame(width: 80, height: 80)
+                                .rotationEffect(.degrees(-90))
+                            Image(systemName: "gamecontroller.fill")
+                                .font(.system(size: 28))
+                                .foregroundColor(.white)
+                        }
+                        Text(game.name)
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        Text(core.status)
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+            }
+            .onAppear {
+                core.start(game: game, viewportSize: geo.size)
+            }
+            .onDisappear {
+                core.stop()
             }
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    dismiss()
-                }) {
-                    Text("Close")
-                        .foregroundColor(.red)
-                }
+                Button("Close") { dismiss() }
+                    .foregroundColor(.red)
             }
         }
     }
 }
+
+// ── Nintendo Switch controller overlay ───────────────────────────────────────
+struct SwitchControllerView: View {
+    let core: SwitchEmulatorCore
+
+    var body: some View {
+        ZStack {
+            Color(white: 0.08)
+            HStack {
+                // Left Joy-Con
+                VStack(spacing: 12) {
+                    HStack(spacing: 4) {
+                        Spacer()
+                        SwitchBtn(label: "↑", core: core, btn: .dpadUp)
+                        Spacer()
+                    }
+                    HStack(spacing: 4) {
+                        SwitchBtn(label: "←", core: core, btn: .dpadLeft)
+                        SwitchBtn(label: "↓", core: core, btn: .dpadDown)
+                        SwitchBtn(label: "→", core: core, btn: .dpadRight)
+                    }
+                    HStack(spacing: 8) {
+                        SwitchBtn(label: "−", core: core, btn: .minus)
+                        SwitchBtn(label: "ZL", core: core, btn: .zl)
+                        SwitchBtn(label: "L",  core: core, btn: .l)
+                    }
+                }
+                .padding(.leading, 20)
+
+                Spacer()
+
+                // Right Joy-Con
+                VStack(spacing: 12) {
+                    HStack { Spacer(); SwitchBtn(label: "X", core: core, btn: .x); Spacer() }
+                    HStack(spacing: 4) {
+                        SwitchBtn(label: "Y", core: core, btn: .y)
+                        SwitchBtn(label: "A", core: core, btn: .a)
+                    }
+                    HStack { Spacer(); SwitchBtn(label: "B", core: core, btn: .b); Spacer() }
+                    HStack(spacing: 8) {
+                        SwitchBtn(label: "R",  core: core, btn: .r)
+                        SwitchBtn(label: "ZR", core: core, btn: .zr)
+                        SwitchBtn(label: "+",  core: core, btn: .plus)
+                    }
+                }
+                .padding(.trailing, 20)
+            }
+        }
+    }
+}
+
+struct SwitchBtn: View {
+    let label: String
+    let core: SwitchEmulatorCore
+    let btn: SwitchButton
+    @State private var pressed = false
+
+    var body: some View {
+        Text(label)
+            .font(.system(size: 13, weight: .bold))
+            .foregroundColor(.white)
+            .frame(width: 42, height: 42)
+            .background(pressed ? Color.red.opacity(0.7) : Color.white.opacity(0.15))
+            .clipShape(Circle())
+            .scaleEffect(pressed ? 0.88 : 1.0)
+            .animation(.spring(response: 0.2), value: pressed)
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { _ in
+                        if !pressed { pressed = true; core.buttonDown(btn) }
+                    }
+                    .onEnded { _ in
+                        pressed = false; core.buttonUp(btn)
+                    }
+            )
+    }
+}
+
 
 struct GameSurfacePlaceholder: View {
     var frame: CGImage?
