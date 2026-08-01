@@ -103,7 +103,7 @@ static bool environment_cb(unsigned cmd, void* data) {
             
             // mupen64plus_next configurations (JIT + Hardware Rendering)
             if (strcmp(var->key, "mupen64plus-cpucore") == 0) {
-                var->value = "dynamic_recompiler"; // JIT
+                var->value = "cached_interpreter"; // Prevents ari64 dynarec crash on iOS JIT
                 return true;
             }
             if (strcmp(var->key, "mupen64plus-rdp-plugin") == 0) {
