@@ -2,6 +2,11 @@ import Foundation
 import Combine
 import SwiftUI
 
+struct BIOSPackEntry: Codable {
+    let relativePath: String
+    let data: Data
+}
+
 struct GameROM: Identifiable, Codable {
     var id = UUID()
     var filename: String
@@ -318,7 +323,7 @@ class ROMManager: ObservableObject {
         defer { url.stopAccessingSecurityScopedResource() }
         
         let ext = url.pathExtension.lowercased()
-        let validBiosExtensions = ["bin", "rom", "sys", "img", "zip"]
+        let validBiosExtensions = ["bin", "rom", "sys", "img", "zip", "aetherbp"]
         
         if !validBiosExtensions.contains(ext) {
             DispatchQueue.main.async {
@@ -331,6 +336,37 @@ class ROMManager: ObservableObject {
         
         let docs = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let biosDir = docs.appendingPathComponent("BIOS")
+        
+        if ext == "aetherbp" {
+            do {
+                let data = try Data(contentsOf: url)
+                let decoder = PropertyListDecoder()
+                let entries = try decoder.decode([BIOSPackEntry].self, from: data)
+                
+                for entry in entries {
+                    let fileURL = biosDir.appendingPathComponent(entry.relativePath)
+                    try? fileManager.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+                    try? entry.data.write(to: fileURL)
+                }
+                
+                checkAllBiosStatus()
+                
+                DispatchQueue.main.async {
+                    self.alertTitle = "Backup Restored"
+                    self.alertMessage = "Successfully restored \(entries.count) BIOS files from backup."
+                    self.showingAlert = true
+                }
+            } catch {
+                print("Failed to decode BIOS pack: \(error)")
+                DispatchQueue.main.async {
+                    self.alertTitle = "Restore Failed"
+                    self.alertMessage = "The backup file appears to be corrupted or invalid."
+                    self.showingAlert = true
+                }
+            }
+            return
+        }
+        
         let destination = biosDir.appendingPathComponent(url.lastPathComponent)
         
         do {
@@ -360,6 +396,44 @@ class ROMManager: ObservableObject {
             try? fileManager.removeItem(at: fileURL)
         }
         checkAllBiosStatus()
+    }
+    
+    func exportBIOSPack() -> URL? {
+        let docs = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let biosDir = docs.appendingPathComponent("BIOS")
+        
+        var entries: [BIOSPackEntry] = []
+        
+        if let enumerator = fileManager.enumerator(at: biosDir, includingPropertiesForKeys: [.isRegularFileKey]) {
+            for case let fileURL as URL in enumerator {
+                guard let attrs = try? fileURL.resourceValues(forKeys: [.isRegularFileKey]), attrs.isRegularFile == true else { continue }
+                
+                // Get relative path
+                let relativePath = fileURL.path.replacingOccurrences(of: biosDir.path + "/", with: "")
+                
+                if let data = try? Data(contentsOf: fileURL) {
+                    entries.append(BIOSPackEntry(relativePath: relativePath, data: data))
+                }
+            }
+        }
+        
+        if entries.isEmpty {
+            return nil
+        }
+        
+        let encoder = PropertyListEncoder()
+        encoder.outputFormat = .binary
+        
+        do {
+            let encodedData = try encoder.encode(entries)
+            let tempDir = fileManager.temporaryDirectory
+            let exportURL = tempDir.appendingPathComponent("Backup.aetherbp")
+            try encodedData.write(to: exportURL)
+            return exportURL
+        } catch {
+            print("Failed to encode BIOS pack: \(error)")
+            return nil
+        }
     }
     
     private func detectSystemFromHeader(fileURL: URL) -> String? {

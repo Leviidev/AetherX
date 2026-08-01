@@ -173,16 +173,35 @@ struct EmulatorsView: View {
     @ObservedObject var romManager: ROMManager
     @State private var showingFilePicker = false
     @State private var showingDeleteConfirmation = false
+    @State private var showingShareSheet = false
+    @State private var backupURL: URL?
     
     var body: some View {
         NavigationView {
             List {
                 Section(header: Text("Firmware / BIOS")) {
                     Button(action: {
+                        if let url = romManager.exportBIOSPack() {
+                            backupURL = url
+                            showingShareSheet = true
+                        } else {
+                            romManager.alertTitle = "No BIOS Files"
+                            romManager.alertMessage = "You don't have any BIOS files to backup."
+                            romManager.showingAlert = true
+                        }
+                    }) {
+                        HStack {
+                            Text("Backup All BIOS (.aetherbp)")
+                            Spacer()
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                    }
+                    
+                    Button(action: {
                         showingFilePicker = true
                     }) {
                         HStack {
-                            Text("Import BIOS File")
+                            Text("Import BIOS File / Backup")
                             Spacer()
                             Image(systemName: "square.and.arrow.down")
                         }

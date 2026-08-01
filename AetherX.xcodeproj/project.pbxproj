@@ -15,6 +15,7 @@
 		A28277470883547D650E6D71 /* AetherXApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E0C589E05CDA2760229B9A /* AetherXApp.swift */; };
 		A533FC3462F2F1A0DA83AFDC /* ConsoleLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FEC3FA794F7421ED5CFE270 /* ConsoleLogger.swift */; };
 		E5A55E6D3F0A7C08516EEF72 /* Glassmorphism.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA2A6012CFC08D1ABE102CC /* Glassmorphism.swift */; };
+		F475E316A0E8B375252457C9 /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30059DF9535785D5939F69E /* ShareSheet.swift */; };
 		F6E21FCA8C63FF43638736D4 /* libretro_bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = E6DC297718B5F174C3D526DE /* libretro_bridge.m */; };
 		F6E99E22C23F20A0FC239512 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8645498FE91C6E374D6170FA /* Foundation.framework */; };
 		FCAFC9163F44F4E3368CFFAE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5653753F599FF37B214CFEB /* ContentView.swift */; };
@@ -35,6 +36,7 @@
 		C0E0C589E05CDA2760229B9A /* AetherXApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AetherXApp.swift; sourceTree = "<group>"; };
 		E5653753F599FF37B214CFEB /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E6DC297718B5F174C3D526DE /* libretro_bridge.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = libretro_bridge.m; sourceTree = "<group>"; };
+		F30059DF9535785D5939F69E /* ShareSheet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
 		F93D93D62EBC6801B1E13BBB /* Cores */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; name = Cores; path = ../Cores; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -88,6 +90,7 @@
 				F93D93D62EBC6801B1E13BBB /* Cores */,
 				0EF59C7B66EB49F0682A927C /* EmulatorCore.swift */,
 				0FEC3FA794F7421ED5CFE270 /* ConsoleLogger.swift */,
+				F30059DF9535785D5939F69E /* ShareSheet.swift */,
 			);
 			path = AetherX;
 			sourceTree = "<group>";
@@ -219,6 +222,7 @@
 				60EE42C57C9E2F57B9B7A5CA /* ROMManager.swift in Sources */,
 				2FC1C04BE931D3D05FC8081F /* EmulatorCore.swift in Sources */,
 				A533FC3462F2F1A0DA83AFDC /* ConsoleLogger.swift in Sources */,
+				F475E316A0E8B375252457C9 /* ShareSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
