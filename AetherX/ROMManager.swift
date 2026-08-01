@@ -471,7 +471,6 @@ class ROMManager: ObservableObject {
         case "cdi", "gdi", "chd": return "Unknown" // We force manual override for CHD if not detected
         case "gba": return ConsoleSystem.gba.rawValue
         case "nds": return ConsoleSystem.nds.rawValue
-        case "n64", "z64", "v64": return ConsoleSystem.n64.rawValue
         case "md", "smd", "gen": return ConsoleSystem.genesis.rawValue
         default: return "Unknown"
         }
