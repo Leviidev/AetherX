@@ -40,11 +40,11 @@ static void* sym(const char* name) {
 bool melonx_load_library(void) {
     if (_libHandle) return true;
     
-    NSString* frameworkPath = [[NSBundle mainBundle] pathForResource:@"LibRyujinx"
-                                                              ofType:@"dylib"];
-    if (!frameworkPath) {
-        // Fallback: look next to the binary
-        NSString* bundlePath = [NSBundle mainBundle].bundlePath;
+    // Embed Frameworks phase copies dylibs to <bundle>/Frameworks/
+    NSString* bundlePath = [NSBundle mainBundle].bundlePath;
+    NSString* frameworkPath = [bundlePath stringByAppendingPathComponent:@"Frameworks/LibRyujinx.dylib"];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:frameworkPath]) {
+        // Fallback: root of bundle (Debug/Xcode direct installs)
         frameworkPath = [bundlePath stringByAppendingPathComponent:@"LibRyujinx.dylib"];
     }
     
