@@ -15,7 +15,7 @@
 		A28277470883547D650E6D71 /* AetherXApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E0C589E05CDA2760229B9A /* AetherXApp.swift */; };
 		A533FC3462F2F1A0DA83AFDC /* ConsoleLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FEC3FA794F7421ED5CFE270 /* ConsoleLogger.swift */; };
 		E5A55E6D3F0A7C08516EEF72 /* Glassmorphism.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA2A6012CFC08D1ABE102CC /* Glassmorphism.swift */; };
-		F6E21FCA8C63FF43638736D4 /* libretro_bridge.c in Sources */ = {isa = PBXBuildFile; fileRef = E6DC297718B5F174C3D526DE /* libretro_bridge.c */; };
+		F6E21FCA8C63FF43638736D4 /* libretro_bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = E6DC297718B5F174C3D526DE /* libretro_bridge.m */; };
 		F6E99E22C23F20A0FC239512 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8645498FE91C6E374D6170FA /* Foundation.framework */; };
 		FCAFC9163F44F4E3368CFFAE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5653753F599FF37B214CFEB /* ContentView.swift */; };
 /* End PBXBuildFile section */
@@ -34,7 +34,7 @@
 		AD27D79B9EF70C67AA7FCD53 /* ROMManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ROMManager.swift; sourceTree = "<group>"; };
 		C0E0C589E05CDA2760229B9A /* AetherXApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AetherXApp.swift; sourceTree = "<group>"; };
 		E5653753F599FF37B214CFEB /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		E6DC297718B5F174C3D526DE /* libretro_bridge.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; path = libretro_bridge.c; sourceTree = "<group>"; };
+		E6DC297718B5F174C3D526DE /* libretro_bridge.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = libretro_bridge.m; sourceTree = "<group>"; };
 		F93D93D62EBC6801B1E13BBB /* Cores */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; name = Cores; path = ../Cores; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -95,7 +95,7 @@
 		70DDDDE26AAAE849B51E9627 /* LibretroBridge */ = {
 			isa = PBXGroup;
 			children = (
-				E6DC297718B5F174C3D526DE /* libretro_bridge.c */,
+				E6DC297718B5F174C3D526DE /* libretro_bridge.m */,
 				13E0C1B77B36A4370E6BE115 /* libretro_bridge.h */,
 			);
 			path = LibretroBridge;
@@ -213,7 +213,7 @@
 			files = (
 				A28277470883547D650E6D71 /* AetherXApp.swift in Sources */,
 				FCAFC9163F44F4E3368CFFAE /* ContentView.swift in Sources */,
-				F6E21FCA8C63FF43638736D4 /* libretro_bridge.c in Sources */,
+				F6E21FCA8C63FF43638736D4 /* libretro_bridge.m in Sources */,
 				E5A55E6D3F0A7C08516EEF72 /* Glassmorphism.swift in Sources */,
 				6BE06255272D01C8C52B29C1 /* EmulatorView.swift in Sources */,
 				60EE42C57C9E2F57B9B7A5CA /* ROMManager.swift in Sources */,

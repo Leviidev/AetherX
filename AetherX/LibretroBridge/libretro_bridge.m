@@ -9,6 +9,28 @@
 #include <string.h>
 #include "libretro.h"
 
+#import <OpenGLES/EAGL.h>
+#import <OpenGLES/ES2/gl.h>
+#import <OpenGLES/ES2/glext.h>
+#import <OpenGLES/ES3/gl.h>
+
+// ── Hardware Rendering State ──
+static struct retro_hw_render_callback hw_render = {0};
+static bool hw_render_enabled = false;
+static EAGLContext *eagl_context = NULL;
+static GLuint hw_fbo = 0;
+static GLuint hw_color_cb = 0;
+static GLuint hw_depth_cb = 0;
+static bool hw_context_reset_called = false;
+
+static uintptr_t get_current_framebuffer(void) {
+    return hw_fbo;
+}
+
+static retro_proc_address_t get_proc_address(const char *sym) {
+    return (retro_proc_address_t)dlsym(RTLD_DEFAULT, sym);
+}
+
 // ── Internal state ──
 static void* core_handle = NULL;
 static bool core_needs_fullpath = false;
@@ -121,6 +143,31 @@ static bool environment_cb(unsigned cmd, void* data) {
         }
         case RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE:
             return false;
+        case RETRO_ENVIRONMENT_SET_HW_RENDER: {
+            struct retro_hw_render_callback *cb = (struct retro_hw_render_callback *)data;
+            
+            EAGLRenderingAPI apiType = kEAGLRenderingAPIOpenGLES2;
+            if (cb->context_type == RETRO_HW_CONTEXT_OPENGLES3) {
+                apiType = kEAGLRenderingAPIOpenGLES3;
+            } else if (cb->context_type != RETRO_HW_CONTEXT_OPENGLES2 && cb->context_type != RETRO_HW_CONTEXT_OPENGLES_VERSION) {
+                return false; // Unsupported context
+            }
+            
+            eagl_context = [[EAGLContext alloc] initWithAPI:apiType];
+            if (!eagl_context) return false;
+            
+            [EAGLContext setCurrentContext:eagl_context];
+            
+            // We will create the FBO later when dimensions are known (or default size)
+            hw_fbo = 0;
+            
+            hw_render = *cb;
+            hw_render.get_current_framebuffer = get_current_framebuffer;
+            hw_render.get_proc_address = get_proc_address;
+            hw_render_enabled = true;
+            
+            return true;
+        }
         case RETRO_ENVIRONMENT_SET_PIXEL_FORMAT: {
             enum retro_pixel_format fmt = *(enum retro_pixel_format*)data;
             if (fmt == RETRO_PIXEL_FORMAT_XRGB8888 || 
@@ -145,6 +192,13 @@ static bool environment_cb(unsigned cmd, void* data) {
 static void video_refresh_cb(const void* data, unsigned width, unsigned height, size_t pitch) {
     current_width = width;
     current_height = height;
+    
+    if (data == RETRO_HW_FRAME_BUFFER_VALID) {
+        // The core rendered into our FBO. We must extract it.
+        // Handled entirely in lb_run() after retro_run() returns, using glReadPixels.
+        return;
+    }
+    
     if (!data || !user_video_callback) return;
     
     if (current_pixel_format == RETRO_PIXEL_FORMAT_XRGB8888) {
@@ -299,8 +353,6 @@ LBError lb_init(LBNESystem system, const char* core_path, const char* system_dir
                core_needs_fullpath);
     }
 
-    // Remove premature retro_get_system_av_info call, it must happen AFTER retro_load_game
-
     return LBError_None;
 }
 
@@ -332,6 +384,14 @@ LBError lb_load_rom(const char* rom_path) {
             current_width = av_info.geometry.base_width;
             current_height = av_info.geometry.base_height;
             printf("[LibretroBridge] AV Info updated: %ux%u\n", current_width, current_height);
+        }
+
+        if (hw_render_enabled && eagl_context) {
+            [EAGLContext setCurrentContext:eagl_context];
+            if (hw_render.context_reset && !hw_context_reset_called) {
+                hw_render.context_reset();
+                hw_context_reset_called = true;
+            }
         }
 
         printf("[LibretroBridge] ROM loaded (fullpath): %s\n", rom_path);
@@ -378,6 +438,14 @@ LBError lb_load_rom(const char* rom_path) {
         return LBError_InitFailed;
     }
 
+    if (hw_render_enabled && eagl_context) {
+        [EAGLContext setCurrentContext:eagl_context];
+        if (hw_render.context_reset && !hw_context_reset_called) {
+            hw_render.context_reset();
+            hw_context_reset_called = true;
+        }
+    }
+
     void (*retro_get_system_av_info_fn)(struct retro_system_av_info*) = dlsym(core_handle, "retro_get_system_av_info");
     if (retro_get_system_av_info_fn) {
         struct retro_system_av_info av_info;
@@ -391,11 +459,69 @@ LBError lb_load_rom(const char* rom_path) {
     return LBError_None;
 }
 
-bool lb_run_frame(void) {
-    if (!core_handle) return false;
+void lb_run(void) {
+    if (!core_handle) return;
     void (*retro_run_fn)(void) = dlsym(core_handle, "retro_run");
-    if (!retro_run_fn) return false;
-    retro_run_fn();
+    if (retro_run_fn) {
+        if (hw_render_enabled && eagl_context) {
+            [EAGLContext setCurrentContext:eagl_context];
+            
+            // Ensure FBO is created
+            if (hw_fbo == 0 && current_width > 0 && current_height > 0) {
+                glGenFramebuffers(1, &hw_fbo);
+                glBindFramebuffer(GL_FRAMEBUFFER, hw_fbo);
+                
+                glGenRenderbuffers(1, &hw_color_cb);
+                glBindRenderbuffer(GL_RENDERBUFFER, hw_color_cb);
+                glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8_OES, current_width, current_height);
+                glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, hw_color_cb);
+                
+                if (hw_render.depth) {
+                    glGenRenderbuffers(1, &hw_depth_cb);
+                    glBindRenderbuffer(GL_RENDERBUFFER, hw_depth_cb);
+                    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, current_width, current_height);
+                    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, hw_depth_cb);
+                    if (hw_render.stencil) {
+                        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, hw_depth_cb);
+                    }
+                }
+            }
+            if (hw_fbo != 0) {
+                glBindFramebuffer(GL_FRAMEBUFFER, hw_fbo);
+            }
+        }
+
+        retro_run_fn();
+
+        if (hw_render_enabled && eagl_context && hw_fbo != 0 && user_video_callback) {
+            size_t out_pitch = current_width * 4;
+            size_t required_size = current_height * out_pitch;
+            if (video_buffer_size < required_size) {
+                video_buffer = realloc(video_buffer, required_size);
+                video_buffer_size = required_size;
+            }
+            
+            glBindFramebuffer(GL_FRAMEBUFFER, hw_fbo);
+            glReadPixels(0, 0, current_width, current_height, GL_RGBA, GL_UNSIGNED_BYTE, video_buffer);
+            
+            // Flip the image vertically (OpenGL reads bottom-up)
+            uint8_t *tmp_row = malloc(out_pitch);
+            for (unsigned y = 0; y < current_height / 2; y++) {
+                uint8_t *row_a = (uint8_t *)video_buffer + y * out_pitch;
+                uint8_t *row_b = (uint8_t *)video_buffer + (current_height - 1 - y) * out_pitch;
+                memcpy(tmp_row, row_a, out_pitch);
+                memcpy(row_a, row_b, out_pitch);
+                memcpy(row_b, tmp_row, out_pitch);
+            }
+            free(tmp_row);
+            
+            user_video_callback(video_buffer, current_width, current_height, out_pitch);
+        }
+    }
+}
+
+bool lb_run_frame(void) {
+    lb_run();
     return true;
 }
 
@@ -412,6 +538,28 @@ void lb_destroy(void) {
     
     if (retro_unload_game_fn) retro_unload_game_fn();
     if (retro_deinit_fn) retro_deinit_fn();
+    
+    if (hw_render_enabled && eagl_context) {
+        [EAGLContext setCurrentContext:eagl_context];
+        if (hw_render.context_destroy && hw_context_reset_called) {
+            hw_render.context_destroy();
+            hw_context_reset_called = false;
+        }
+        if (hw_fbo) {
+            glDeleteFramebuffers(1, &hw_fbo);
+            hw_fbo = 0;
+        }
+        if (hw_color_cb) {
+            glDeleteRenderbuffers(1, &hw_color_cb);
+            hw_color_cb = 0;
+        }
+        if (hw_depth_cb) {
+            glDeleteRenderbuffers(1, &hw_depth_cb);
+            hw_depth_cb = 0;
+        }
+        eagl_context = NULL;
+        hw_render_enabled = false;
+    }
     
     dlclose(core_handle);
     core_handle = NULL;
