@@ -10,6 +10,7 @@
 		1357AE667698F9ABDB2DD42E /* Cores in Resources */ = {isa = PBXBuildFile; fileRef = F93D93D62EBC6801B1E13BBB /* Cores */; };
 		2FC1C04BE931D3D05FC8081F /* EmulatorCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EF59C7B66EB49F0682A927C /* EmulatorCore.swift */; };
 		60EE42C57C9E2F57B9B7A5CA /* ROMManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD27D79B9EF70C67AA7FCD53 /* ROMManager.swift */; };
+		6614530BFCD7D9E37C3DD8DB /* flycast_libretro_ios.core in Resources */ = {isa = PBXBuildFile; fileRef = 62E6904CFABBB3A12CA68890 /* flycast_libretro_ios.core */; };
 		6BE06255272D01C8C52B29C1 /* EmulatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A58710B675B0A9888BBBE820 /* EmulatorView.swift */; };
 		A28277470883547D650E6D71 /* AetherXApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E0C589E05CDA2760229B9A /* AetherXApp.swift */; };
 		A533FC3462F2F1A0DA83AFDC /* ConsoleLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FEC3FA794F7421ED5CFE270 /* ConsoleLogger.swift */; };
@@ -24,6 +25,7 @@
 		0FEC3FA794F7421ED5CFE270 /* ConsoleLogger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConsoleLogger.swift; sourceTree = "<group>"; };
 		13E0C1B77B36A4370E6BE115 /* libretro_bridge.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = libretro_bridge.h; sourceTree = "<group>"; };
 		1EA2A6012CFC08D1ABE102CC /* Glassmorphism.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Glassmorphism.swift; sourceTree = "<group>"; };
+		62E6904CFABBB3A12CA68890 /* flycast_libretro_ios.core */ = {isa = PBXFileReference; includeInIndex = 1; name = flycast_libretro_ios.core; path = Cores/flycast_libretro_ios.core; sourceTree = "<group>"; };
 		777EA85EC2BA5866D07C04C5 /* AetherX-Bridging-Header.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "AetherX-Bridging-Header.h"; sourceTree = "<group>"; };
 		85E430DE8B0BDD2E4AF84315 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8645498FE91C6E374D6170FA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -54,6 +56,14 @@
 				3ACDBE8F4962A28D53029EE6 /* iOS */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		23E3DF34C15012021B14456F /* Cores */ = {
+			isa = PBXGroup;
+			children = (
+				62E6904CFABBB3A12CA68890 /* flycast_libretro_ios.core */,
+			);
+			name = Cores;
 			sourceTree = "<group>";
 		};
 		3ACDBE8F4962A28D53029EE6 /* iOS */ = {
@@ -105,6 +115,7 @@
 				A6D1107A1AA5EBC947291AA0 /* Products */,
 				03662450776A2FFFA9AD74BE /* Frameworks */,
 				47DCFB9BD6373B8645FAF6C5 /* AetherX */,
+				23E3DF34C15012021B14456F /* Cores */,
 			);
 			sourceTree = "<group>";
 		};
@@ -168,6 +179,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1357AE667698F9ABDB2DD42E /* Cores in Resources */,
+				6614530BFCD7D9E37C3DD8DB /* flycast_libretro_ios.core in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

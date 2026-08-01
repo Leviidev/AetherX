@@ -68,7 +68,10 @@ class EmulatorCore: ObservableObject {
         let systemType: LBNESystem
         let coreFilename: String
         
-        if game.system.contains("PlayStation") {
+        if game.system.contains("PlayStation Portable") {
+            systemType = LBPSP
+            coreFilename = "ppsspp_libretro_ios.core"
+        } else if game.system.contains("PlayStation") {
             systemType = LBSystem_PS1
             coreFilename = "pcsx_rearmed_libretro_ios.core"
         } else if game.system.contains("Nintendo 64") {
@@ -77,12 +80,27 @@ class EmulatorCore: ObservableObject {
         } else if game.system.contains("Game Boy Advance") {
             systemType = LBGBA
             coreFilename = "mgba_libretro_ios.core"
-        } else if game.system.contains("Genesis") {
+        } else if game.system.contains("Game Boy") {
+            systemType = LBGBC
+            coreFilename = "gambatte_libretro_ios.core"
+        } else if game.system.contains("Genesis") || game.system.contains("Mega Drive") {
             systemType = LBGenesis
             coreFilename = "genesis_plus_gx_libretro_ios.core"
+        } else if game.system.contains("Sega CD") || game.system.contains("32X") {
+            systemType = LBSegaCD
+            coreFilename = "picodrive_libretro_ios.core"
         } else if game.system.contains("Nintendo DS") {
             systemType = LBNDS
             coreFilename = "melonds_libretro_ios.core"
+        } else if game.system.contains("Nintendo Entertainment System") {
+            systemType = LBNES
+            coreFilename = "fceumm_libretro_ios.core"
+        } else if game.system.contains("Arcade") {
+            systemType = LBArcade
+            coreFilename = "fbneo_libretro_ios.core"
+        } else if game.system.contains("Dreamcast") {
+            systemType = LBDreamcast
+            coreFilename = "flycast_libretro_ios.core"
         } else {
             systemType = LBSNES
             coreFilename = "snes9x_libretro_ios.core"

@@ -15,7 +15,12 @@ typedef enum {
     LBN64,
     LBGBA,
     LBGenesis,
-    LBNDS
+    LBNDS,
+    LBDreamcast,
+    LBPSP,
+    LBGBC,
+    LBArcade,
+    LBSegaCD
 } LBNESystem;
 
 typedef enum {

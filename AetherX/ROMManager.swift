@@ -22,6 +22,12 @@ enum ConsoleSystem: String, CaseIterable, Identifiable {
     case nds = "Nintendo - Nintendo DS"
     case n64 = "Nintendo - Nintendo 64"
     case genesis = "Sega - Mega Drive - Genesis"
+    case dreamcast = "Sega - Dreamcast"
+    case psp = "Sony - PlayStation Portable"
+    case nes = "Nintendo - Nintendo Entertainment System"
+    case gbc = "Nintendo - Game Boy Color"
+    case arcade = "Arcade Games"
+    case segacd = "Sega - Mega-CD - Sega CD"
     
     var id: String { self.rawValue }
     
@@ -33,6 +39,12 @@ enum ConsoleSystem: String, CaseIterable, Identifiable {
         case .nds: return "Nintendo DS"
         case .n64: return "Nintendo 64"
         case .genesis: return "Sega Genesis"
+        case .dreamcast: return "Sega Dreamcast"
+        case .psp: return "PlayStation Portable"
+        case .nes: return "Nintendo Entertainment System"
+        case .gbc: return "Game Boy Color"
+        case .arcade: return "Arcade"
+        case .segacd: return "Sega CD"
         }
     }
     
@@ -44,6 +56,12 @@ enum ConsoleSystem: String, CaseIterable, Identifiable {
         case .nds: return ["bios7.bin", "bios9.bin", "firmware.bin"]
         case .n64: return []
         case .genesis: return []
+        case .dreamcast: return ["dc_boot.bin"]
+        case .psp: return []
+        case .nes: return []
+        case .gbc: return []
+        case .arcade: return []
+        case .segacd: return ["bios_CD_U.bin", "bios_CD_E.bin", "bios_CD_J.bin"]
         }
     }
     
@@ -175,6 +193,43 @@ class ROMManager: ObservableObject {
         scanROMs()
     }
     
+    func renameROM(_ game: GameROM, to newName: String) {
+        let docs = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let romsDir = docs.appendingPathComponent("ROMs")
+        let boxartDir = docs.appendingPathComponent("Boxarts")
+        
+        let oldBaseName = (game.filename as NSString).deletingPathExtension
+        let ext = (game.filename as NSString).pathExtension
+        
+        // Rename the primary file
+        let oldURL = romsDir.appendingPathComponent(game.filename)
+        let newURL = romsDir.appendingPathComponent("\(newName).\(ext)")
+        try? fileManager.moveItem(at: oldURL, to: newURL)
+        
+        // Rename associated .cue or .bin
+        let oldCue = romsDir.appendingPathComponent("\(oldBaseName).cue")
+        let newCue = romsDir.appendingPathComponent("\(newName).cue")
+        if fileManager.fileExists(atPath: oldCue.path) {
+            try? fileManager.moveItem(at: oldCue, to: newCue)
+        }
+        
+        let oldBin = romsDir.appendingPathComponent("\(oldBaseName).bin")
+        let newBin = romsDir.appendingPathComponent("\(newName).bin")
+        if fileManager.fileExists(atPath: oldBin.path) {
+            try? fileManager.moveItem(at: oldBin, to: newBin)
+        }
+        
+        // Delete old boxart (it will be refetched by scanROMs with the new name)
+        if let boxArtPath = game.boxArtPath {
+            try? fileManager.removeItem(atPath: boxArtPath)
+        } else {
+            let possibleBoxArt = boxartDir.appendingPathComponent("\(game.name).png")
+            try? fileManager.removeItem(at: possibleBoxArt)
+        }
+        
+        scanROMs()
+    }
+    
     // MARK: - BIOS Management
     
     func checkAllBiosStatus() {
@@ -266,7 +321,12 @@ class ROMManager: ObservableObject {
     private func determineSystemString(from ext: String) -> String {
         switch ext {
         case "smc", "sfc": return ConsoleSystem.snes.rawValue
-        case "bin", "cue", "iso": return ConsoleSystem.ps1.rawValue
+        case "bin", "cue": return ConsoleSystem.ps1.rawValue // Overlaps with Sega CD, defaulting to PS1
+        case "iso", "cso": return ConsoleSystem.psp.rawValue
+        case "nes": return ConsoleSystem.nes.rawValue
+        case "gb", "gbc": return ConsoleSystem.gbc.rawValue
+        case "zip": return ConsoleSystem.arcade.rawValue
+        case "cdi", "gdi", "chd": return ConsoleSystem.dreamcast.rawValue // CHD overlaps with Sega CD / PS1
         case "gba": return ConsoleSystem.gba.rawValue
         case "nds": return ConsoleSystem.nds.rawValue
         case "n64", "z64", "v64": return ConsoleSystem.n64.rawValue

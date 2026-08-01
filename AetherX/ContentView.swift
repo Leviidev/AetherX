@@ -36,6 +36,9 @@ struct HomeView: View {
     @State private var selectedGame: GameROM?
     @State private var showingJITAlert = false
     @State private var pendingJITGame: GameROM?
+    @State private var showingRenameAlert = false
+    @State private var renameGame: GameROM?
+    @State private var newGameName = ""
     
     let columns = [
         GridItem(.flexible()),
@@ -75,6 +78,13 @@ struct HomeView: View {
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 .contextMenu {
+                                    Button(action: {
+                                        renameGame = game
+                                        newGameName = game.name
+                                        showingRenameAlert = true
+                                    }) {
+                                        Label("Edit Name", systemImage: "pencil")
+                                    }
                                     Button(role: .destructive, action: {
                                         romManager.deleteROM(game)
                                     }) {
@@ -118,10 +128,24 @@ struct HomeView: View {
             }
             .alert(isPresented: $showingJITAlert) {
                 Alert(
-                    title: Text("Coming Soon"),
-                    message: Text("Sorry! Nintendo 64 games are currently in the works."),
-                    dismissButton: .default(Text("OK"))
+                    title: Text("Experimental Core"),
+                    message: Text("This system requires JIT compilation to run. It will crash on standard iOS devices without a debugger attached."),
+                    primaryButton: .default(Text("Launch Anyway")) {
+                        if let game = pendingJITGame {
+                            selectedGame = game
+                        }
+                    },
+                    secondaryButton: .cancel()
                 )
+            }
+            .alert("Edit Game Name", isPresented: $showingRenameAlert, presenting: renameGame) { game in
+                TextField("Game Name", text: $newGameName)
+                Button("Save") {
+                    romManager.renameROM(game, to: newGameName)
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: { game in
+                Text("Enter the correct name for this game. Box art will be redownloaded.")
             }
         }
     }
@@ -259,7 +283,7 @@ struct SettingsView: View {
                     HStack {
                         Text("Version")
                         Spacer()
-                        Text("1.0.0").foregroundColor(.gray)
+                        Text("1.0.1").foregroundColor(.gray)
                     }
                     HStack {
                         Text("Developer")

@@ -48,6 +48,18 @@ static const char* core_path_for_system(LBNESystem system) {
             return "genesis_plus_gx_libretro_ios.core";
         case LBNDS:
             return "melonds_libretro_ios.core";
+        case LBDreamcast:
+            return "flycast_libretro_ios.core";
+        case LBPSP:
+            return "ppsspp_libretro_ios.core";
+        case LBNES:
+            return "fceumm_libretro_ios.core";
+        case LBGBC:
+            return "gambatte_libretro_ios.core";
+        case LBArcade:
+            return "fbneo_libretro_ios.core";
+        case LBSegaCD:
+            return "picodrive_libretro_ios.core";
         case LBSystem_PS1:
         default:
             return "pcsx_rearmed_libretro_ios.core";
