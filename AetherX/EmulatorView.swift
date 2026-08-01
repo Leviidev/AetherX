@@ -149,21 +149,53 @@ struct EmulatorView: View {
 struct GameSurfacePlaceholder: View {
     var frame: CGImage?
     
+    @AppStorage("crtShader") private var crtShader = false
+    @AppStorage("aspectRatio") private var aspectRatio = 0
+    @AppStorage("pixelPerfect") private var pixelPerfect = true
+    
     var body: some View {
-        if let cgImage = frame {
-            Image(cgImage, scale: 1.0, orientation: .up, label: Text("Game View"))
-                .resizable()
-                .interpolation(.none)
-                .aspectRatio(4/3, contentMode: .fit)
-        } else {
-            Rectangle()
-                .fill(Color.gray.opacity(0.3))
-                .aspectRatio(4/3, contentMode: .fit)
-                .overlay(
-                    Text("Loading Core...")
-                        .foregroundColor(.white)
-                )
+        let ratio: CGFloat = (aspectRatio == 1) ? 16/9 : 4/3
+        let mode: ContentMode = (aspectRatio == 2) ? .fill : .fit
+        
+        Group {
+            if let cgImage = frame {
+                Image(cgImage, scale: 1.0, orientation: .up, label: Text("Game View"))
+                    .resizable()
+                    .interpolation(pixelPerfect ? .none : .high)
+                    .aspectRatio(aspectRatio == 2 ? nil : ratio, contentMode: mode)
+            } else {
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .aspectRatio(aspectRatio == 2 ? nil : ratio, contentMode: mode)
+                    .overlay(
+                        Text("Loading Core...")
+                            .foregroundColor(.white)
+                    )
+            }
         }
+        .overlay(
+            Group {
+                if crtShader {
+                    ScanlineOverlay()
+                }
+            }
+        )
+        .clipped()
+    }
+}
+
+struct ScanlineOverlay: View {
+    var body: some View {
+        GeometryReader { geo in
+            Path { path in
+                for y in stride(from: 0, to: geo.size.height, by: 3) {
+                    path.move(to: CGPoint(x: 0, y: y))
+                    path.addLine(to: CGPoint(x: geo.size.width, y: y))
+                }
+            }
+            .stroke(Color.black.opacity(0.25), lineWidth: 1)
+        }
+        .allowsHitTesting(false)
     }
 }
 

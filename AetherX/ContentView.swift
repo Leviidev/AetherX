@@ -271,6 +271,7 @@ struct SettingsView: View {
     @AppStorage("crtShader") private var crtShader = false
     @AppStorage("aspectRatio") private var aspectRatio = 0
     @AppStorage("audioSync") private var audioSync = true
+    @AppStorage("pixelPerfect") private var pixelPerfect = true
     
     var body: some View {
         NavigationView {
@@ -286,6 +287,7 @@ struct SettingsView: View {
                 Section(header: Text("Video Settings")) {
                     Toggle("Show FPS", isOn: $showFPS)
                     Toggle("CRT Scanline Shader", isOn: $crtShader)
+                    Toggle("Pixel Perfect (Nearest Neighbor)", isOn: $pixelPerfect)
                     Picker("Aspect Ratio", selection: $aspectRatio) {
                         Text("4:3 (Original)").tag(0)
                         Text("16:9 (Widescreen)").tag(1)
@@ -294,7 +296,7 @@ struct SettingsView: View {
                 }
                 
                 Section(header: Text("Audio Settings")) {
-                    Toggle("Enable Audio Sync", isOn: .constant(true))
+                    Toggle("Enable Audio Sync", isOn: $audioSync)
                 }
                 
                 Section(header: Text("About")) {
