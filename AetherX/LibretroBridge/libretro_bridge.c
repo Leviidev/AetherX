@@ -106,6 +106,17 @@ static bool environment_cb(unsigned cmd, void* data) {
                 var->value = "cxd4";
                 return true;
             }
+            
+            // PPSSPP core options (Disable JIT for iOS)
+            if (strcmp(var->key, "ppsspp_cpu_core") == 0 || strcmp(var->key, "ppsspp_jit") == 0) {
+                var->value = "ir"; // Use IR interpreter, not jit
+                return true;
+            }
+            if (strcmp(var->key, "ppsspp_gpu_hardware_transform") == 0) {
+                var->value = "disabled";
+                return true;
+            }
+            
             return false;
         }
         case RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE:
