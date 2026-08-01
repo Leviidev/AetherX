@@ -11,8 +11,11 @@ struct EmulatorView: View {
     @State private var showingMenu = false
     
     var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
+        if game.system == ConsoleSystem.switchConsole.rawValue {
+            SwitchStubView(game: game)
+        } else {
+            ZStack {
+                Color.black.ignoresSafeArea()
             
             if verticalSizeClass == .regular {
                 // Portrait Layout: Split-Screen exactly 50/50
@@ -137,11 +140,52 @@ struct EmulatorView: View {
         .sheet(isPresented: $showingLogs) {
             LogView()
         }
-        .onAppear {
-            core.start(game: game)
+            .onAppear {
+                core.start(game: game)
+            }
+            .onDisappear {
+                core.stop()
+            }
         }
-        .onDisappear {
-            core.stop()
+    }
+}
+
+struct SwitchStubView: View {
+    let game: GameROM
+    @Environment(\.dismiss) var dismiss
+    
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            VStack(spacing: 20) {
+                Image(systemName: "gamecontroller.fill")
+                    .font(.system(size: 60))
+                    .foregroundColor(.red)
+                
+                Text("Nintendo Switch Engine Integration Pending")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                
+                Text("AetherX is awaiting the Sudachi backend integration to play: \n\(game.name)")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+            }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Text("Close")
+                        .foregroundColor(.red)
+                }
+            }
         }
     }
 }

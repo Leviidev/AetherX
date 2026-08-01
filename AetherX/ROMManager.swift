@@ -25,10 +25,9 @@ enum ConsoleSystem: String, CaseIterable, Identifiable {
     case snes = "Nintendo - Super Nintendo Entertainment System"
     case gba = "Nintendo - Game Boy Advance"
     case nds = "Nintendo - Nintendo DS"
-    case n64 = "Nintendo - Nintendo 64"
     case genesis = "Sega - Mega Drive - Genesis"
     case dreamcast = "Sega - Dreamcast"
-    case psp = "Sony - PlayStation Portable"
+    case switchConsole = "Nintendo - Switch"
     case nes = "Nintendo - Nintendo Entertainment System"
     case gbc = "Nintendo - Game Boy Color"
     case arcade = "Arcade Games"
@@ -42,10 +41,9 @@ enum ConsoleSystem: String, CaseIterable, Identifiable {
         case .snes: return "Super Nintendo (SNES)"
         case .gba: return "Game Boy Advance"
         case .nds: return "Nintendo DS"
-        case .n64: return "Nintendo 64"
         case .genesis: return "Sega Genesis"
         case .dreamcast: return "Sega Dreamcast"
-        case .psp: return "PlayStation Portable"
+        case .switchConsole: return "Nintendo Switch"
         case .nes: return "Nintendo Entertainment System"
         case .gbc: return "Game Boy Color"
         case .arcade: return "Arcade"
@@ -59,10 +57,9 @@ enum ConsoleSystem: String, CaseIterable, Identifiable {
         case .snes: return []
         case .gba: return ["gba_bios.bin"]
         case .nds: return ["bios7.bin", "bios9.bin", "firmware.bin"]
-        case .n64: return []
+        case .switchConsole: return ["prod.keys", "title.keys"]
         case .genesis: return []
         case .dreamcast: return ["dc_boot.bin"]
-        case .psp: return []
         case .nes: return []
         case .gbc: return []
         case .arcade: return []
@@ -442,7 +439,6 @@ class ROMManager: ObservableObject {
         
         let data = fileHandle.readData(ofLength: 65536)
         
-        if data.range(of: "PSP GAME".data(using: .ascii)!) != nil { return ConsoleSystem.psp.rawValue }
         if data.range(of: "SEGA_CD".data(using: .ascii)!) != nil || data.range(of: "SEGADISCSYSTEM".data(using: .ascii)!) != nil { return ConsoleSystem.segacd.rawValue }
         if data.range(of: "PLAYSTATION".data(using: .ascii)!) != nil { return ConsoleSystem.ps1.rawValue }
         
@@ -468,7 +464,7 @@ class ROMManager: ObservableObject {
         switch ext {
         case "smc", "sfc": return ConsoleSystem.snes.rawValue
         case "bin", "cue": return ConsoleSystem.ps1.rawValue // Overlaps with Sega CD, defaulting to PS1 if header fails
-        case "iso", "cso": return ConsoleSystem.psp.rawValue
+        case "nsp", "xci": return ConsoleSystem.switchConsole.rawValue
         case "nes": return ConsoleSystem.nes.rawValue
         case "gb", "gbc": return ConsoleSystem.gbc.rawValue
         case "zip": return ConsoleSystem.arcade.rawValue

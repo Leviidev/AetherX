@@ -34,8 +34,6 @@ struct HomeView: View {
     @ObservedObject var romManager: ROMManager
     @State private var showingFilePicker = false
     @State private var selectedGame: GameROM?
-    @State private var showingJITAlert = false
-    @State private var pendingJITGame: GameROM?
     @State private var showingRenameAlert = false
     @State private var renameGame: GameROM?
     @State private var newGameName = ""
@@ -69,12 +67,7 @@ struct HomeView: View {
                         LazyVGrid(columns: columns, spacing: 20) {
                             ForEach(romManager.games) { game in
                                 Button(action: {
-                                    if game.system.contains("Nintendo 64") {
-                                        pendingJITGame = game
-                                        showingJITAlert = true
-                                    } else {
-                                        selectedGame = game
-                                    }
+                                    selectedGame = game
                                 }) {
                                     GameCardView(game: game)
                                 }
@@ -133,18 +126,6 @@ struct HomeView: View {
                 case .failure(let error):
                     print("Error selecting file: \(error.localizedDescription)")
                 }
-            }
-            .alert(isPresented: $showingJITAlert) {
-                Alert(
-                    title: Text("Experimental Core"),
-                    message: Text("This system requires JIT compilation to run. It will crash on standard iOS devices without a debugger attached."),
-                    primaryButton: .default(Text("Launch Anyway")) {
-                        if let game = pendingJITGame {
-                            selectedGame = game
-                        }
-                    },
-                    secondaryButton: .cancel()
-                )
             }
             .alert("Edit Game Name", isPresented: $showingRenameAlert, presenting: renameGame) { game in
                 TextField("Game Name", text: $newGameName)
