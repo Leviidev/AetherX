@@ -101,17 +101,17 @@ static bool environment_cb(unsigned cmd, void* data) {
             struct retro_variable *var = (struct retro_variable *)data;
             if (!var || !var->key) return false;
             
-            // mupen64plus_next configurations (JIT + Software Rendering)
+            // mupen64plus_next configurations (JIT + Hardware Rendering)
             if (strcmp(var->key, "mupen64plus-cpucore") == 0) {
-                var->value = "dynamic_recompiler";
+                var->value = "dynamic_recompiler"; // JIT
                 return true;
             }
             if (strcmp(var->key, "mupen64plus-rdp-plugin") == 0) {
-                var->value = "angrylion";
+                var->value = "gliden64"; // OpenGL hardware renderer
                 return true;
             }
             if (strcmp(var->key, "mupen64plus-rsp-plugin") == 0) {
-                var->value = "cxd4";
+                var->value = "hle"; // High level emulation (faster)
                 return true;
             }
             
@@ -129,9 +129,9 @@ static bool environment_cb(unsigned cmd, void* data) {
                 return true;
             }
             
-            // PPSSPP core options (Disable JIT for iOS)
+            // PPSSPP core options
             if (strcmp(var->key, "ppsspp_cpu_core") == 0 || strcmp(var->key, "ppsspp_jit") == 0) {
-                var->value = "ir"; // Use IR interpreter, not jit
+                var->value = "jit"; // Allow JIT for users with JIT enabled
                 return true;
             }
             if (strcmp(var->key, "ppsspp_gpu_hardware_transform") == 0) {
