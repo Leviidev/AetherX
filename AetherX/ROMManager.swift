@@ -120,8 +120,18 @@ class ROMManager: ObservableObject {
             // Skip .bin if a .cue with the same basename exists
             if ext == "bin" {
                 let basename = (file as NSString).deletingPathExtension.lowercased()
+                
+                // 1. Exact match check
                 if cueBasenames.contains(basename) {
                     continue
+                }
+                
+                // 2. Multi-track match check (e.g. "GTA 2 (Track 1).bin" -> "gta 2")
+                if let trackRange = basename.range(of: "\\s*\\(track\\s+\\d+\\)$", options: .regularExpression) {
+                    let strippedBasename = basename.replacingCharacters(in: trackRange, with: "").trimmingCharacters(in: .whitespaces)
+                    if cueBasenames.contains(strippedBasename) {
+                        continue
+                    }
                 }
             }
             
