@@ -370,6 +370,14 @@ LBError lb_load_rom(const char* rom_path) {
             .meta = NULL,
         };
         
+        if (hw_render_enabled && eagl_context) {
+            [EAGLContext setCurrentContext:eagl_context];
+            if (hw_render.context_reset && !hw_context_reset_called) {
+                hw_render.context_reset();
+                hw_context_reset_called = true;
+            }
+        }
+        
         bool success = retro_load_game_fn(&game_info);
         if (!success) {
             fprintf(stderr, "[LibretroBridge] retro_load_game (fullpath) failed\n");
@@ -384,14 +392,6 @@ LBError lb_load_rom(const char* rom_path) {
             current_width = av_info.geometry.base_width;
             current_height = av_info.geometry.base_height;
             printf("[LibretroBridge] AV Info updated: %ux%u\n", current_width, current_height);
-        }
-
-        if (hw_render_enabled && eagl_context) {
-            [EAGLContext setCurrentContext:eagl_context];
-            if (hw_render.context_reset && !hw_context_reset_called) {
-                hw_render.context_reset();
-                hw_context_reset_called = true;
-            }
         }
 
         printf("[LibretroBridge] ROM loaded (fullpath): %s\n", rom_path);
@@ -430,20 +430,20 @@ LBError lb_load_rom(const char* rom_path) {
         .meta = NULL,
     };
 
-    bool success = retro_load_game_fn(&game_info);
-    free(data);
-
-    if (!success) {
-        fprintf(stderr, "[LibretroBridge] retro_load_game (memory) failed\n");
-        return LBError_InitFailed;
-    }
-
     if (hw_render_enabled && eagl_context) {
         [EAGLContext setCurrentContext:eagl_context];
         if (hw_render.context_reset && !hw_context_reset_called) {
             hw_render.context_reset();
             hw_context_reset_called = true;
         }
+    }
+    
+    bool success = retro_load_game_fn(&game_info);
+    free(data);
+
+    if (!success) {
+        fprintf(stderr, "[LibretroBridge] retro_load_game (memory) failed\n");
+        return LBError_InitFailed;
     }
 
     void (*retro_get_system_av_info_fn)(struct retro_system_av_info*) = dlsym(core_handle, "retro_get_system_av_info");
