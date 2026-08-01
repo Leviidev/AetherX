@@ -80,6 +80,11 @@ class ROMManager: ObservableObject {
     
     private let fileManager = FileManager.default
     
+    private var manualOverrides: [String: String] {
+        get { UserDefaults.standard.dictionary(forKey: "ManualSystemOverrides") as? [String: String] ?? [:] }
+        set { UserDefaults.standard.set(newValue, forKey: "ManualSystemOverrides") }
+    }
+    
     init() {
         createDirectories()
         scanROMs()
@@ -120,8 +125,21 @@ class ROMManager: ObservableObject {
                 }
             }
             
-            let system = determineSystemString(from: ext)
-            if system == "Unknown" { continue }
+            let fileURL = romsDir.appendingPathComponent(file)
+            var system = determineSystem(for: fileURL, filename: file, ext: ext)
+            
+            if system == "Unknown" {
+                if ext == "chd" {
+                    // Let it pass through so it shows up, but trigger an alert
+                    DispatchQueue.main.async {
+                        self.alertTitle = "Unknown CHD File"
+                        self.alertMessage = "We cannot detect what console '\(file)' is for. Please press OK, hold click on the game, edit metadata and select the correct console."
+                        self.showingAlert = true
+                    }
+                } else {
+                    continue
+                }
+            }
             
             let name = (file as NSString).deletingPathExtension
             
@@ -230,6 +248,24 @@ class ROMManager: ObservableObject {
         scanROMs()
     }
     
+    func setSystemOverride(for game: GameROM, to system: ConsoleSystem) {
+        var overrides = manualOverrides
+        overrides[game.filename] = system.rawValue
+        manualOverrides = overrides
+        
+        // Delete old boxart
+        if let boxArtPath = game.boxArtPath {
+            try? fileManager.removeItem(atPath: boxArtPath)
+        } else {
+            let docs = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            let boxartDir = docs.appendingPathComponent("Boxarts")
+            let possibleBoxArt = boxartDir.appendingPathComponent("\(game.name).png")
+            try? fileManager.removeItem(at: possibleBoxArt)
+        }
+        
+        scanROMs()
+    }
+    
     // MARK: - BIOS Management
     
     func checkAllBiosStatus() {
@@ -316,17 +352,43 @@ class ROMManager: ObservableObject {
         checkAllBiosStatus()
     }
     
-    // MARK: - Helpers
+    private func detectSystemFromHeader(fileURL: URL) -> String? {
+        guard let fileHandle = try? FileHandle(forReadingFrom: fileURL) else { return nil }
+        defer { try? fileHandle.close() }
+        
+        let data = fileHandle.readData(ofLength: 65536)
+        
+        if data.range(of: "PSP GAME".data(using: .ascii)!) != nil { return ConsoleSystem.psp.rawValue }
+        if data.range(of: "SEGA_CD".data(using: .ascii)!) != nil || data.range(of: "SEGADISCSYSTEM".data(using: .ascii)!) != nil { return ConsoleSystem.segacd.rawValue }
+        if data.range(of: "PLAYSTATION".data(using: .ascii)!) != nil { return ConsoleSystem.ps1.rawValue }
+        
+        return nil
+    }
     
-    private func determineSystemString(from ext: String) -> String {
+    private func determineSystem(for fileURL: URL, filename: String, ext: String) -> String {
+        // 1. Manual Override
+        if let override = manualOverrides[filename] {
+            return override
+        }
+        
+        // 2. Header Introspection for overlapping types
+        if ["iso", "bin", "img", "cue"].contains(ext) {
+            // For cue, read the actual bin file if possible, but reading cue might not give the binary header.
+            // We'll just read the file directly (a .cue won't have it, but .iso/.bin will).
+            if let detected = detectSystemFromHeader(fileURL: fileURL) {
+                return detected
+            }
+        }
+        
+        // 3. Fallback to extension matching
         switch ext {
         case "smc", "sfc": return ConsoleSystem.snes.rawValue
-        case "bin", "cue": return ConsoleSystem.ps1.rawValue // Overlaps with Sega CD, defaulting to PS1
+        case "bin", "cue": return ConsoleSystem.ps1.rawValue // Overlaps with Sega CD, defaulting to PS1 if header fails
         case "iso", "cso": return ConsoleSystem.psp.rawValue
         case "nes": return ConsoleSystem.nes.rawValue
         case "gb", "gbc": return ConsoleSystem.gbc.rawValue
         case "zip": return ConsoleSystem.arcade.rawValue
-        case "cdi", "gdi", "chd": return ConsoleSystem.dreamcast.rawValue // CHD overlaps with Sega CD / PS1
+        case "cdi", "gdi", "chd": return "Unknown" // We force manual override for CHD if not detected
         case "gba": return ConsoleSystem.gba.rawValue
         case "nds": return ConsoleSystem.nds.rawValue
         case "n64", "z64", "v64": return ConsoleSystem.n64.rawValue

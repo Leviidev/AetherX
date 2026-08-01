@@ -39,6 +39,8 @@ struct HomeView: View {
     @State private var showingRenameAlert = false
     @State private var renameGame: GameROM?
     @State private var newGameName = ""
+    @State private var showingSystemPicker = false
+    @State private var systemPickerGame: GameROM?
     
     let columns = [
         GridItem(.flexible()),
@@ -84,6 +86,12 @@ struct HomeView: View {
                                         showingRenameAlert = true
                                     }) {
                                         Label("Edit Name", systemImage: "pencil")
+                                    }
+                                    Button(action: {
+                                        systemPickerGame = game
+                                        showingSystemPicker = true
+                                    }) {
+                                        Label("Change Console", systemImage: "gamecontroller")
                                     }
                                     Button(role: .destructive, action: {
                                         romManager.deleteROM(game)
@@ -146,6 +154,16 @@ struct HomeView: View {
                 Button("Cancel", role: .cancel) { }
             } message: { game in
                 Text("Enter the correct name for this game. Box art will be redownloaded.")
+            }
+            .confirmationDialog("Select Console", isPresented: $showingSystemPicker, presenting: systemPickerGame) { game in
+                ForEach(ConsoleSystem.allCases) { system in
+                    Button(system.displayName) {
+                        romManager.setSystemOverride(for: game, to: system)
+                    }
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: { game in
+                Text("Manually select the correct console for \(game.name).")
             }
         }
     }
