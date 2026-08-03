@@ -1,3 +1,10 @@
-*.rb
-*.sh
-aetheremu/
+# Ignore everything by default
+*
+
+# Except these essential files
+!.gitignore
+!README.md
+!.gitattributes
+
+# Allow git to track itself
+!.git/**
